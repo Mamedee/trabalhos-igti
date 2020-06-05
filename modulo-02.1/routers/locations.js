@@ -12,85 +12,113 @@ let arrayJsonStates;
 let arrayJsonCities;
 let arrayCompleteLocation=[];
 let arrayStatesNumCities=[];
+let menoresCidadesPorEstado=[];
+let maioresCidadesPorEstado=[];
 
-router.get('/menor-cidade-por-estado', (request,response) => {
+router.get('/menor-cidade-geral', (_,response) => {
    try {
-      loadStatesCities(false);
+      extraiMenoresCidadesPorEstado();
 
-      let menoresCidadesPorEstado=[];
-      
-      if (arrayCompleteLocation.length > 0) {         
+      let menorCidadeGeral=[];
 
-         for (let i=0; i<arrayCompleteLocation.length; i++) {
-            let indiceMenorCidade=0;
+      if (menoresCidadesPorEstado.length > 0) {         
+
+         let indiceMenorCidade=0;
+
+         for (let i=0; i<menoresCidadesPorEstado.length; i++) {                        
             
-            for(let j=0; j<arrayCompleteLocation[i].Cidades.length;j++) {
-               
-               let menorCidade = arrayCompleteLocation[i].Cidades[indiceMenorCidade].length;
-               let cidadeAtual = arrayCompleteLocation[i].Cidades[j].length;
-               
-               if(cidadeAtual < menorCidade) {
-                  menorCidade = arrayCompleteLocation[i].Cidades[j].length;
-                  indiceMenorCidade = j;
-               } else if (cidadeAtual === menorCidade) {
-                  let menor = arrayCompleteLocation[i].Cidades[indiceMenorCidade];
-                  let desafiante = arrayCompleteLocation[i].Cidades[j];
-                  let disputa = [];
-                  disputa.push([menor,indiceMenorCidade]);
-                  disputa.push([desafiante,j]);
-                  disputa.sort();
-                  indiceMenorCidade=disputa[0][1];                  
-               }
+            let menorCidade = menoresCidadesPorEstado[indiceMenorCidade][0].length;
+            let cidadeAtual = menoresCidadesPorEstado[i][0].length;
+            
+            if(cidadeAtual < menorCidade) {
+               menorCidade = menoresCidadesPorEstado[i][0].length;
+               indiceMenorCidade = i;
+            } else if (cidadeAtual === menorCidade) {
+               let menor = menoresCidadesPorEstado[indiceMenorCidade][0];
+               let desafiante = menoresCidadesPorEstado[i][0];
+               let disputa = [];
+               disputa.push([menor,indiceMenorCidade]);
+               disputa.push([desafiante,i]);
+               disputa.sort();
+               indiceMenorCidade=disputa[0][1];                  
             }
-            menoresCidadesPorEstado.push([arrayCompleteLocation[i].Cidades[indiceMenorCidade], arrayCompleteLocation[i].Sigla]);            
+
+            if (menorCidadeGeral.length > 0) {
+               menorCidadeGeral.pop();
+            }
+            menorCidadeGeral.push([menoresCidadesPorEstado[indiceMenorCidade][0], menoresCidadesPorEstado[indiceMenorCidade][1]]);
          }
       }
 
-      response.status(200).send(menoresCidadesPorEstado);
+      response.status(200).send(JSON.stringify(menorCidadeGeral));
    } catch (error) {
       response.status(400).send({error:error.message});
    }
-} );
+});
 
-router.get('/maior-cidade-por-estado', (request,response) => {
+router.get('/maior-cidade-geral', (_,response) => {
    try {
-      loadStatesCities(false);
+      extraiMaioresCidadesPorEstado();
 
-      let maioresCidadesPorEstado=[];
-      
-      if (arrayCompleteLocation.length > 0) {         
+      let maiorCidadeGeral=[];
 
-         for (let i=0; i<arrayCompleteLocation.length; i++) {
-            let indiceMaiorCidade=0;
-            for(let j=0; j<arrayCompleteLocation[i].Cidades.length;j++) {
-               
-               let maiorCidade = arrayCompleteLocation[i].Cidades[indiceMaiorCidade].length;
-               let cidadeAtual = arrayCompleteLocation[i].Cidades[j].length;
-               
-               if(cidadeAtual > maiorCidade) {
-                  maiorCidade = arrayCompleteLocation[i].Cidades[j].length;
-                  indiceMaiorCidade = j;
-               } else if (cidadeAtual === maiorCidade) {
-                  let maior = arrayCompleteLocation[i].Cidades[indiceMaiorCidade];
-                  let desafiante = arrayCompleteLocation[i].Cidades[j];
-                  let disputa = [];
-                  disputa.push([maior,indiceMaiorCidade]);
-                  disputa.push([desafiante,j]);
-                  disputa.sort();
-                  indiceMaiorCidade=disputa[0][1];                  
-               }
+      if (maioresCidadesPorEstado.length > 0) {         
+
+         let indiceMaiorCidade=0;
+
+         for (let i=0; i<maioresCidadesPorEstado.length; i++) {                        
+            
+            let maiorCidade = maioresCidadesPorEstado[indiceMaiorCidade][0].length;
+            let cidadeAtual = maioresCidadesPorEstado[i][0].length;
+            
+            if(cidadeAtual > maiorCidade) {
+               maiorCidade = maioresCidadesPorEstado[i][0].length;
+               indiceMaiorCidade = i;
+            } else if (cidadeAtual === maiorCidade) {
+               let maior = maioresCidadesPorEstado[indiceMaiorCidade][0];
+               let desafiante = maioresCidadesPorEstado[i][0];
+               let disputa = [];
+               disputa.push([maior,indiceMaiorCidade]);
+               disputa.push([desafiante,i]);
+               disputa.sort();
+               indiceMaiorCidade=disputa[0][1];                  
             }
-            maioresCidadesPorEstado.push([arrayCompleteLocation[i].Cidades[indiceMaiorCidade], arrayCompleteLocation[i].Sigla]);
+
+            if (maiorCidadeGeral.length > 0) {
+               maiorCidadeGeral.pop();
+            }
+            maiorCidadeGeral.push([maioresCidadesPorEstado[indiceMaiorCidade][0], maioresCidadesPorEstado[indiceMaiorCidade][1]]);
          }
       }
 
-      response.status(200).send(maioresCidadesPorEstado);
+      response.status(200).send(JSON.stringify(maiorCidadeGeral));
+   } catch (error) {
+      response.status(400).send({error:error.message});
+   }
+});
+
+router.get('/menor-cidade-por-estado', (_,response) => {
+   try {
+      extraiMenoresCidadesPorEstado();
+
+      response.status(200).send(JSON.stringify(menoresCidadesPorEstado));
    } catch (error) {
       response.status(400).send({error:error.message});
    }
 } );
 
-router.get('/cinco-menores-estados', (request,response) => {
+router.get('/maior-cidade-por-estado', (_,response) => {
+   try {
+      
+      extraiMaioresCidadesPorEstado();
+
+      response.status(200).send(JSON.stringify(maioresCidadesPorEstado));
+   } catch (error) {
+      response.status(400).send({error:error.message});
+   }
+} );
+
+router.get('/cinco-menores-estados', (_,response) => {
 
    try {
       loadFromStatesFiles();
@@ -124,7 +152,7 @@ router.get('/cinco-menores-estados', (request,response) => {
 
       }
 
-      response.send(arrayBottomFive);
+      response.send(JSON.stringify(arrayBottomFive));
    } catch (error) {
       response.status(400).send({error:error.message});
    }
@@ -159,7 +187,7 @@ router.get('/cinco-maiores-estados', (request,response) => {
 
       }
 
-      response.send(arrayTopFive);
+      response.send(JSON.stringify(arrayTopFive));
    } catch (error) {
       response.status(400).send({error:error.message});
    }
@@ -205,71 +233,73 @@ router.get('/criar-arquivos-estados', (_, response) => {
 //***************************************************************************** */
 
 function loadStatesCities(createFile=false) {
-   if (fs.existsSync(fileStates) || fs.existsSync(fileCities)) {
+   if (arrayCompleteLocation.length === 0) {
+      if (fs.existsSync(fileStates) || fs.existsSync(fileCities)) {
 
-      //trabalho no JSon das cidades
-      //criar os arquivos dos estados
-      fs.readFile(fileStates,'utf8', (error, data) => {            
-         arrayJsonStates = JSON.parse(data);
-         
-         arrayJsonStates.forEach((element,index) => {
-            arrayCompleteLocation.push({ID:element.ID,Sigla:element.Sigla,NCidades:0,Cidades:[]});
+         //trabalho no JSon das cidades
+         //criar os arquivos dos estados
+         fs.readFile(fileStates,'utf8', (error, data) => {            
+            arrayJsonStates = JSON.parse(data);
+            
+            arrayJsonStates.forEach((element,index) => {
+               arrayCompleteLocation.push({ID:element.ID,Sigla:element.Sigla,NCidades:0,Cidades:[]});
+
+               if (createFile) {
+                  fileState = dirStates + element.Sigla + '.json';
+                  if (!fs.existsSync(fileState)) {
+                     fs.writeFile(fileState,'', error => {
+                        if (error) {
+                           throw error('Falha ao criar o arquivo `${fileState}`.');
+                        }
+                     });
+                  }
+               }
+            });            
+         });
+
+         //trabalho no JSon das cidades
+         fs.readFile(fileCities,'utf8', (error, data) => {            
+            arrayJsonCities = JSON.parse(data);
+            
+            for (let i=0; i<arrayJsonCities.length; i++) {
+               for(let j=0; j<arrayCompleteLocation.length;j++) {
+                  if (arrayCompleteLocation[j].ID === arrayJsonCities[i].Estado) {
+                     arrayCompleteLocation[j].NCidades++;
+                     arrayCompleteLocation[j].Cidades.push(arrayJsonCities[i].Nome);
+                     break;
+                  }
+               }
+            }         
 
             if (createFile) {
-               fileState = dirStates + element.Sigla + '.json';
-               if (!fs.existsSync(fileState)) {
-                  fs.writeFile(fileState,'', error => {
-                     if (error) {
-                        throw error('Falha ao criar o arquivo `${fileState}`.');
-                     }
-                  });
-               }
-            }
-         });            
-      });
+               for (let i=0; i<arrayCompleteLocation.length; i++) {
+                  let fileStateFound = dirStates + arrayCompleteLocation[i].Sigla + '.json';
 
-      //trabalho no JSon das cidades
-      fs.readFile(fileCities,'utf8', (error, data) => {            
-         arrayJsonCities = JSON.parse(data);
-         
-         for (let i=0; i<arrayJsonCities.length; i++) {
-            for(let j=0; j<arrayCompleteLocation.length;j++) {
-               if (arrayCompleteLocation[j].ID === arrayJsonCities[i].Estado) {
-                  arrayCompleteLocation[j].NCidades++;
-                  arrayCompleteLocation[j].Cidades.push(arrayJsonCities[i].Nome);
-                  break;
-               }
-            }
-         }         
-
-         if (createFile) {
-            for (let i=0; i<arrayCompleteLocation.length; i++) {
-               let fileStateFound = dirStates + arrayCompleteLocation[i].Sigla + '.json';
-
-               if (fs.existsSync(fileStateFound)) {
-                  let jsonCompleteLocation = {cidades : arrayCompleteLocation[i].Cidades}
-                  fs.appendFile(fileStateFound,JSON.stringify(jsonCompleteLocation), error => {
-                     if (error) {
-                        throw error('Falha ao criar o arquivo `${fileState}`.');
-                     }
-                  });
-               }
-            }
-            
-
-            let fileCompleteLocation = 'complete.json';
-            if (!fs.existsSync(fileCompleteLocation)) {
-               fs.writeFile(fileCompleteLocation,JSON.stringify(arrayCompleteLocation), error => {
-                  if (error) {
-                     throw error('Falha ao criar o arquivo `${fileCompleteLocation}`.');
+                  if (fs.existsSync(fileStateFound)) {
+                     let jsonCompleteLocation = {cidades : arrayCompleteLocation[i].Cidades}
+                     fs.appendFile(fileStateFound,JSON.stringify(jsonCompleteLocation), error => {
+                        if (error) {
+                           throw error('Falha ao criar o arquivo `${fileState}`.');
+                        }
+                     });
                   }
-               });
-            }
-         }            
-      });         
-   } else {         
-      throw error('Arquivos `${fileStates}` e `${fileCities}`não encontrados.');
-   }   
+               }
+               
+
+               let fileCompleteLocation = 'complete.json';
+               if (!fs.existsSync(fileCompleteLocation)) {
+                  fs.writeFile(fileCompleteLocation,JSON.stringify(arrayCompleteLocation), error => {
+                     if (error) {
+                        throw error('Falha ao criar o arquivo `${fileCompleteLocation}`.');
+                     }
+                  });
+               }
+            }            
+         });         
+      } else {         
+         throw error('Arquivos `${fileStates}` e `${fileCities}`não encontrados.');
+      } 
+   }  
 }
 
 function loadFromStatesFiles() {
@@ -303,6 +333,66 @@ function loadToArray(data, index) {
    arrayStatesNumCities[index][1] = data.numcidades;
 }
 
+function extraiMenoresCidadesPorEstado() {
+   loadStatesCities(false);      
+      
+   if (arrayCompleteLocation.length > 0) {         
+
+      for (let i=0; i<arrayCompleteLocation.length; i++) {
+         let indiceMenorCidade=0;
+         
+         for(let j=0; j<arrayCompleteLocation[i].Cidades.length;j++) {
+            
+            let menorCidade = arrayCompleteLocation[i].Cidades[indiceMenorCidade].length;
+            let cidadeAtual = arrayCompleteLocation[i].Cidades[j].length;
+            
+            if(cidadeAtual < menorCidade) {
+               menorCidade = arrayCompleteLocation[i].Cidades[j].length;
+               indiceMenorCidade = j;
+            } else if (cidadeAtual === menorCidade) {
+               let menor = arrayCompleteLocation[i].Cidades[indiceMenorCidade];
+               let desafiante = arrayCompleteLocation[i].Cidades[j];
+               let disputa = [];
+               disputa.push([menor,indiceMenorCidade]);
+               disputa.push([desafiante,j]);
+               disputa.sort();
+               indiceMenorCidade=disputa[0][1];                  
+            }
+         }
+         menoresCidadesPorEstado.push([arrayCompleteLocation[i].Cidades[indiceMenorCidade], arrayCompleteLocation[i].Sigla]);            
+      }
+   }
+}
+
+function extraiMaioresCidadesPorEstado() {
+   loadStatesCities(false);      
+      
+   if ((arrayCompleteLocation.length > 0)) {         
+
+      for (let i=0; i<arrayCompleteLocation.length; i++) {
+         let indiceMaiorCidade=0;
+         for(let j=0; j<arrayCompleteLocation[i].Cidades.length;j++) {
+            
+            let maiorCidade = arrayCompleteLocation[i].Cidades[indiceMaiorCidade].length;
+            let cidadeAtual = arrayCompleteLocation[i].Cidades[j].length;
+            
+            if(cidadeAtual > maiorCidade) {
+               maiorCidade = arrayCompleteLocation[i].Cidades[j].length;
+               indiceMaiorCidade = j;
+            } else if (cidadeAtual === maiorCidade) {
+               let maior = arrayCompleteLocation[i].Cidades[indiceMaiorCidade];
+               let desafiante = arrayCompleteLocation[i].Cidades[j];
+               let disputa = [];
+               disputa.push([maior,indiceMaiorCidade]);
+               disputa.push([desafiante,j]);
+               disputa.sort();
+               indiceMaiorCidade=disputa[0][1];                  
+            }
+         }
+         maioresCidadesPorEstado.push([arrayCompleteLocation[i].Cidades[indiceMaiorCidade], arrayCompleteLocation[i].Sigla]);
+      }
+   }
+}
 
 //.................................................
 
